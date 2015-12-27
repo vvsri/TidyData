@@ -1,28 +1,6 @@
-# #Each person performed six activities (WALKING, WALKING_UPSTAIRS, WALKING_DOWNSTAIRS, SITTING, STANDING, LAYING)
-# - 'features_info.txt': Shows information about the variables used on the feature vector. 
-# 
-# - 'features.txt': List of all features. 
-# 
-# - 'activity_labels.txt': Links the activity ID with their activity name.
-# 
-# Each feature vector is a row on the 'X'
-# 
-# - 'train/X_train.txt': Training set.
-# 
-# - 'train/y_train.txt': Training labels.
-# 
-# - 'test/X_test.txt': Test set.
-# 
-# - 'test/y_test.txt': Test labels
-# 
-# - 'train/subject_train.txt': Each row identifies the subject who performed the activity for each window sample. Its range is from 1 to 30. 
-# #prefix 't' to denote time
-# #the 'f' to indicate frequency domain signals
-# mean(): Mean value
-# std(): Standard deviation
+#Each person performed six activities (WALKING, WALKING_UPSTAIRS, WALKING_DOWNSTAIRS, SITTING, STANDING, LAYING)
 
-
-#
+#Merges the training and the test sets to create one data set.
 featureNames <- read.table("UCI HAR Dataset/features.txt")
 activityLabels <- read.table("UCI HAR Dataset/activity_labels.txt", header = FALSE)
 #activityLabels
@@ -47,7 +25,7 @@ colnames(features) <- t(featureNames[2])
 colnames(activity)<-"Activity"
 colnames(subject)<-"Subject"
 
-
+#Extracts only the measurements on the mean and standard deviation for each measurement.
 completeData <- cbind(features,activity,subject)
 columnsWithMeanSTD <- grep(".*Mean.*|.*Std.*", names(completeData), ignore.case=TRUE)
 requiredColumns <- c(columnsWithMeanSTD, 562, 563)
@@ -60,12 +38,13 @@ extractedData$Activity
  #       extractedData$Activity[extractedData$Activity == i] <- activityLabels[i,2]
 #}
 
+#Uses descriptive activity names to name the activities in the data set
 extractedData$Activity <- as.character(extractedData$Activity)
 for (i in 1:6){
         extractedData$Activity[extractedData$Activity == i] <- as.character(activityLabels[i,2])
 }
 
-
+#Appropriately labels the data set with descriptive variable names
 names(extractedData)<-gsub("Acc", "Accelerometer", names(extractedData))
 names(extractedData)<-gsub("Gyro", "Gyroscope", names(extractedData))
 names(extractedData)<-gsub("BodyBody", "Body", names(extractedData))
@@ -79,6 +58,7 @@ names(extractedData)<-gsub("-freq()", "Frequency", names(extractedData), ignore.
 names(extractedData)<-gsub("angle", "Angle", names(extractedData))
 names(extractedData)<-gsub("gravity", "Gravity", names(extractedData))
 
+#From the data set in step 4, creates a second, independent tidy data set with the average of each variable for each activity and each subject.
 extractedData$Activity <- as.factor(extractedData$Activity)
 extractedData$Subject <- as.factor(extractedData$Subject)
 library(data.table)
@@ -86,8 +66,5 @@ extractedData <- data.table(extractedData)
 tidyData <- aggregate(. ~Subject + Activity, extractedData, mean)
 tidyData <- tidyData
 #names(tidyData)
-write.table(tidyData, file = "tidydat/Tidy.txt", row.names = FALSE)
+write.table(tidyData, file = "Tidy.txt", row.names = FALSE)
 
-x<-names(tidyData)
-x<-as.data.table(x)
-x
